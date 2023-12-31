@@ -1,9 +1,23 @@
+## Import and Ready
 import numpy as np
-import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow.keras import layers, models
+import tensorflow_datasets as tfds
+import matplotlib.pyplot as plt
+
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras import models
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
+
+AUTOTUNE = tf.data.AUTOTUNE
+
+
+def download_imgs():
+    div2k_data =tfds.image.Div2k(config="bicubic_x4")
+    
+    
+
 
 # 노이즈를 추가할 원본 이미지 생성
 def generate_original_image():
