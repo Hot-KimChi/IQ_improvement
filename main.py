@@ -13,10 +13,16 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img
 AUTOTUNE = tf.data.AUTOTUNE
 
 
+## Download the training dataset
 def download_imgs():
     div2k_data =tfds.image.Div2k(config="bicubic_x4")
+    div2k_data.download_and_prepare()
+
+
+class Dataset_Object(dataset_cache, training=True):
     
-    
+    def __init__(self, )
+
 
 
 # 노이즈를 추가할 원본 이미지 생성
@@ -38,88 +44,94 @@ def add_noise_to_image(original_image, noise_factor=0.2):
 
     return noisy_image
 
-# 데이터셋 생성
-def create_dataset(num_samples=1000):
-    original_images = []
-    noisy_images = []
 
-    for _ in range(num_samples):
-        original_image = generate_original_image()
-        noisy_image = add_noise_to_image(original_image)
+if __name__ == '__main__':
+    download_imgs()
+    generate_original_image()
 
-        original_images.append(original_image)
-        noisy_images.append(noisy_image)
 
-    return np.array(original_images), np.array(noisy_images)
+# # 데이터셋 생성
+# def create_dataset(num_samples=1000):
+#     original_images = []
+#     noisy_images = []
 
-# 데이터 전처리
-def preprocess_data(original_images, noisy_images):
-    # MobileNetV2의 입력 형식에 맞게 이미지 크기를 조정하고 정규화
-    original_images = tf.keras.applications.mobilenet_v2.preprocess_input(original_images)
-    noisy_images = tf.keras.applications.mobilenet_v2.preprocess_input(noisy_images)
+#     for _ in range(num_samples):
+#         original_image = generate_original_image()
+#         noisy_image = add_noise_to_image(original_image)
 
-    return original_images, noisy_images
+#         original_images.append(original_image)
+#         noisy_images.append(noisy_image)
 
-# 모델 정의 (MobileNetV2 기반)
-def build_model(input_shape):
-    base_model = MobileNetV2(input_shape=input_shape, include_top=False, weights='imagenet')
+#     return np.array(original_images), np.array(noisy_images)
 
-    # MobileNetV2의 중간층에서 feature를 추출
-    base_model.trainable = False
+# # 데이터 전처리
+# def preprocess_data(original_images, noisy_images):
+#     # MobileNetV2의 입력 형식에 맞게 이미지 크기를 조정하고 정규화
+#     original_images = tf.keras.applications.mobilenet_v2.preprocess_input(original_images)
+#     noisy_images = tf.keras.applications.mobilenet_v2.preprocess_input(noisy_images)
 
-    model = models.Sequential([
-        base_model,
-        layers.GlobalAveragePooling2D(),
-        layers.Dense(1024, activation='relu'),
-        layers.Dense(input_shape[0] * input_shape[1] * input_shape[2], activation='sigmoid'),  # 픽셀 당 1개의 값을 예측
-        layers.Reshape((input_shape[0], input_shape[1], input_shape[2]))
-    ])
+#     return original_images, noisy_images
 
-    model.compile(optimizer='adam', loss='mse')
+# # 모델 정의 (MobileNetV2 기반)
+# def build_model(input_shape):
+#     base_model = MobileNetV2(input_shape=input_shape, include_top=False, weights='imagenet')
 
-    return model
+#     # MobileNetV2의 중간층에서 feature를 추출
+#     base_model.trainable = False
 
-# 학습 및 평가
-def train_and_evaluate_model(original_images, noisy_images, epochs=10):
-    input_shape = original_images[0].shape
+#     model = models.Sequential([
+#         base_model,
+#         layers.GlobalAveragePooling2D(),
+#         layers.Dense(1024, activation='relu'),
+#         layers.Dense(input_shape[0] * input_shape[1] * input_shape[2], activation='sigmoid'),  # 픽셀 당 1개의 값을 예측
+#         layers.Reshape((input_shape[0], input_shape[1], input_shape[2]))
+#     ])
 
-    # 모델 빌드
-    model = build_model(input_shape)
+#     model.compile(optimizer='adam', loss='mse')
 
-    # 데이터 전처리
-    original_images, noisy_images = preprocess_data(original_images, noisy_images)
+#     return model
 
-    # 모델 학습
-    model.fit(noisy_images, original_images, epochs=epochs, batch_size=32, shuffle=True)
+# # 학습 및 평가
+# def train_and_evaluate_model(original_images, noisy_images, epochs=10):
+#     input_shape = original_images[0].shape
 
-    # 예측
-    predicted_images = model.predict(noisy_images)
+#     # 모델 빌드
+#     model = build_model(input_shape)
 
-    # 결과 시각화
-    visualize_results(original_images, noisy_images, predicted_images)
+#     # 데이터 전처리
+#     original_images, noisy_images = preprocess_data(original_images, noisy_images)
 
-# 결과 시각화
-def visualize_results(original_images, noisy_images, predicted_images):
-    plt.figure(figsize=(10, 7))
+#     # 모델 학습
+#     model.fit(noisy_images, original_images, epochs=epochs, batch_size=32, shuffle=True)
 
-    for i in range(5):  # 5개의 샘플만 시각화
-        plt.subplot(3, 5, i + 1)
-        plt.imshow(original_images[i])
-        plt.title('Original')
+#     # 예측
+#     predicted_images = model.predict(noisy_images)
 
-        plt.subplot(3, 5, i + 6)
-        plt.imshow(noisy_images[i])
-        plt.title('Noisy')
+#     # 결과 시각화
+#     visualize_results(original_images, noisy_images, predicted_images)
 
-        plt.subplot(3, 5, i + 11)
-        plt.imshow(predicted_images[i])
-        plt.title('Predicted')
+# # 결과 시각화
+# def visualize_results(original_images, noisy_images, predicted_images):
+#     plt.figure(figsize=(10, 7))
 
-    plt.show()
+#     for i in range(5):  # 5개의 샘플만 시각화
+#         plt.subplot(3, 5, i + 1)
+#         plt.imshow(original_images[i])
+#         plt.title('Original')
 
-# 데이터셋 생성
-original_images, noisy_images = create_dataset(num_samples=1000)
+#         plt.subplot(3, 5, i + 6)
+#         plt.imshow(noisy_images[i])
+#         plt.title('Noisy')
 
-# 모델 학습 및 평가
-train_and_evaluate_model(original_images, noisy_images, epochs=10)
+#         plt.subplot(3, 5, i + 11)
+#         plt.imshow(predicted_images[i])
+#         plt.title('Predicted')
+
+#     plt.show()
+
+# # 데이터셋 생성
+# original_images, noisy_images = create_dataset(num_samples=1000)
+
+# # 모델 학습 및 평가
+# train_and_evaluate_model(original_images, noisy_images, epochs=10)
 
