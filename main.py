@@ -1,3 +1,17 @@
+## Image enhancement sequence
+## 원본 이미지 생성 또는 불러오기:
+# 초음파 이미지를 생성하거나 불러옵니다.
+
+# 이미지 세그멘테이션 수행:
+# 이미지 세그멘테이션 모델을 사용하여 원본 이미지의 객체 구조를 예측합니다.
+
+# 노이즈 추가:
+# 이미지 세그멘테이션 이후에 노이즈를 추가합니다.
+# 이미지 세그멘테이션 결과를 보존하면서 노이즈를 추가해야 합니다.
+
+# 모델 학습 및 평가:
+# 세그멘테이션된 이미지와 노이즈가 추가된 이미지를 사용하여 모델을 학습하고 평가합니다.
+
 ## Import and Ready
 import numpy as np
 import tensorflow as tf
@@ -17,11 +31,21 @@ AUTOTUNE = tf.data.AUTOTUNE
 def download_imgs():
     div2k_data =tfds.image.Div2k(config="bicubic_x4")
     div2k_data.download_and_prepare()
-
-
-class Dataset_Object(dataset_cache, training=True):
     
-    def __init__(self, )
+    # Taking train data from div2k_data object
+    train = div2k_data.as_dataset(split="train", as_supervised=True)
+    train_cache = train.cache()
+    # Validation data
+    val = div2k_data.as_dataset(split="validation", as_supervised=True)
+    val_cache = val.cache()
+    
+    return train_cache, val_cache
+
+
+class Dataset_Object:
+    
+    def __init__(self, dataset_cache, training=True):
+        
 
 
 
